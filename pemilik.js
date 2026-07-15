@@ -2,369 +2,248 @@
 
 /*
   =====================================================
-  AKUN KEDUA MEMPELAI
+  PANEL PEMILIK UNDANGAN — AAN & SUCI
+  Simpan file ini dengan nama: pemilik.js
   =====================================================
-
-  Ganti username dan password sebelum website dipublikasikan.
-
-  Catatan:
-  Karena website ini bersifat statis, data akun tetap dapat dilihat
-  melalui source code browser. Untuk keamanan penuh diperlukan backend.
 */
 
-const OWNER_ACCOUNTS = {
-  achmad: {
-    password: "achmad0608",
-    displayName: "Achmad"
-  },
+document.addEventListener("DOMContentLoaded", function () {
+  const HISTORY_KEY = "aanSuciInvitationHistory";
 
-  suci: {
-    password: "suci0608",
-    displayName: "Suci"
+  const invitationForm = document.getElementById("invitationForm");
+
+  /*
+    Apabila file ini tidak sengaja dipasang pada index.html,
+    hentikan proses agar tidak menimbulkan error JavaScript.
+  */
+  if (!invitationForm) {
+    return;
   }
-};
 
+  const guestNameInput = document.getElementById("guestName");
+  const invitationGreetingInput =
+    document.getElementById("invitationGreeting");
+  const invitationMessageInput =
+    document.getElementById("invitationMessage");
+  const invitationPageInput =
+    document.getElementById("invitationPage");
+  const characterCountElement =
+    document.getElementById("characterCount");
+  const emptyResult = document.getElementById("emptyResult");
+  const generatedResult =
+    document.getElementById("generatedResult");
+  const previewGreeting =
+    document.getElementById("previewGreeting");
+  const previewGuest = document.getElementById("previewGuest");
+  const previewMessage = document.getElementById("previewMessage");
+  const generatedLinkInput =
+    document.getElementById("generatedLink");
+  const copyLinkButton =
+    document.getElementById("copyLinkButton");
+  const openLinkButton =
+    document.getElementById("openLinkButton");
+  const whatsappButton =
+    document.getElementById("whatsappButton");
+  const resultMessage =
+    document.getElementById("resultMessage");
+  const historyList = document.getElementById("historyList");
+  const clearHistoryButton =
+    document.getElementById("clearHistoryButton");
 
-const SESSION_KEY = "achmadSuciOwnerSession";
-const HISTORY_KEY = "achmadSuciInvitationHistory";
+  let generatedInvitation = null;
 
-const loginSection = document.getElementById("loginSection");
-const dashboardSection = document.getElementById("dashboardSection");
+  function escapeHTML(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
 
-const loginForm = document.getElementById("loginForm");
-const usernameInput = document.getElementById("username");
-const passwordInput = document.getElementById("password");
-const loginMessage = document.getElementById("loginMessage");
-
-const showPasswordButton = document.getElementById("showPassword");
-const logoutButton = document.getElementById("logoutButton");
-
-const ownerNameElement = document.getElementById("ownerName");
-
-const invitationForm = document.getElementById("invitationForm");
-const guestNameInput = document.getElementById("guestName");
-const invitationGreetingInput =
-  document.getElementById("invitationGreeting");
-
-const invitationMessageInput =
-  document.getElementById("invitationMessage");
-
-const invitationPageInput =
-  document.getElementById("invitationPage");
-
-const characterCountElement =
-  document.getElementById("characterCount");
-
-const emptyResult = document.getElementById("emptyResult");
-const generatedResult = document.getElementById("generatedResult");
-
-const previewGreeting = document.getElementById("previewGreeting");
-const previewGuest = document.getElementById("previewGuest");
-const previewMessage = document.getElementById("previewMessage");
-
-const generatedLinkInput = document.getElementById("generatedLink");
-
-const copyLinkButton = document.getElementById("copyLinkButton");
-const openLinkButton = document.getElementById("openLinkButton");
-const whatsappButton = document.getElementById("whatsappButton");
-
-const resultMessage = document.getElementById("resultMessage");
-
-const historyList = document.getElementById("historyList");
-const clearHistoryButton =
-  document.getElementById("clearHistoryButton");
-
-let generatedInvitation = null;
-
-
-/*
-  Menghindari karakter HTML berbahaya saat menampilkan data.
-*/
-function escapeHTML(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-
-/*
-  Memeriksa sesi login yang tersimpan.
-*/
-function getActiveSession() {
-  try {
-    const session = sessionStorage.getItem(SESSION_KEY);
-
-    if (!session) {
-      return null;
-    }
-
-    const parsedSession = JSON.parse(session);
-
+  function createInvitationId() {
     if (
-      !parsedSession.username ||
-      !OWNER_ACCOUNTS[parsedSession.username]
+      typeof crypto !== "undefined" &&
+      typeof crypto.randomUUID === "function"
     ) {
-      return null;
+      return crypto.randomUUID();
     }
 
-    return parsedSession;
-  } catch (error) {
-    return null;
-  }
-}
-
-
-/*
-  Menampilkan dashboard.
-*/
-function showDashboard(username) {
-  const account = OWNER_ACCOUNTS[username];
-
-  if (!account) {
-    return;
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
-  loginSection.classList.add("hidden");
-  dashboardSection.classList.remove("hidden");
+  function createAbsoluteInvitationURL(pageValue) {
+    const cleanPage = String(pageValue || "").trim() || "index.html";
 
-  ownerNameElement.textContent = account.displayName;
-
-  renderHistory();
-}
-
-
-/*
-  Menampilkan halaman login.
-*/
-function showLogin() {
-  dashboardSection.classList.add("hidden");
-  loginSection.classList.remove("hidden");
-
-  loginForm.reset();
-  loginMessage.textContent = "";
-
-  usernameInput.focus();
-}
-
-
-/*
-  Login.
-*/
-loginForm.addEventListener("submit", function (event) {
-  event.preventDefault();
-
-  const username = usernameInput.value.trim().toLowerCase();
-  const password = passwordInput.value;
-
-  const account = OWNER_ACCOUNTS[username];
-
-  if (!account || account.password !== password) {
-    loginMessage.textContent =
-      "Nama pengguna atau kode akses tidak sesuai.";
-
-    passwordInput.value = "";
-    passwordInput.focus();
-
-    return;
+    try {
+      return new URL(cleanPage, window.location.href);
+    } catch (error) {
+      return new URL("index.html", window.location.href);
+    }
   }
 
-  sessionStorage.setItem(
-    SESSION_KEY,
-    JSON.stringify({
-      username,
-      loginTime: new Date().toISOString()
-    })
-  );
+  function showResultMessage(message) {
+    if (!resultMessage) {
+      return;
+    }
 
-  loginMessage.textContent = "";
+    resultMessage.textContent = message;
+    window.clearTimeout(showResultMessage.timeout);
 
-  showDashboard(username);
-});
-
-
-/*
-  Lihat atau sembunyikan password.
-*/
-showPasswordButton.addEventListener("click", function () {
-  const isPassword =
-    passwordInput.type === "password";
-
-  passwordInput.type =
-    isPassword ? "text" : "password";
-
-  showPasswordButton.textContent =
-    isPassword ? "Tutup" : "Lihat";
-});
-
-
-/*
-  Logout.
-*/
-logoutButton.addEventListener("click", function () {
-  sessionStorage.removeItem(SESSION_KEY);
-
-  generatedInvitation = null;
-
-  showLogin();
-});
-
-
-/*
-  Menghitung karakter ucapan.
-*/
-function updateCharacterCount() {
-  characterCountElement.textContent =
-    invitationMessageInput.value.length;
-}
-
-invitationMessageInput.addEventListener(
-  "input",
-  updateCharacterCount
-);
-
-updateCharacterCount();
-
-
-/*
-  Membuat URL absolut.
-
-  Jika input hanya berisi index.html, URL akan mengikuti
-  alamat folder website saat ini.
-*/
-function createAbsoluteInvitationURL(pageValue) {
-  const cleanPage = pageValue.trim() || "index.html";
-
-  try {
-    return new URL(cleanPage, window.location.href);
-  } catch (error) {
-    return new URL("index.html", window.location.href);
-  }
-}
-
-
-/*
-  Membuat link undangan.
-*/
-invitationForm.addEventListener("submit", function (event) {
-  event.preventDefault();
-
-  const activeSession = getActiveSession();
-
-  if (!activeSession) {
-    showLogin();
-    return;
+    showResultMessage.timeout = window.setTimeout(function () {
+      resultMessage.textContent = "";
+    }, 4000);
   }
 
-  const guestName = guestNameInput.value.trim();
-  const greeting = invitationGreetingInput.value.trim();
-  const message = invitationMessageInput.value.trim();
+  function updateCharacterCount() {
+    if (!characterCountElement || !invitationMessageInput) {
+      return;
+    }
 
-  if (!guestName) {
-    guestNameInput.focus();
-    return;
+    characterCountElement.textContent =
+      invitationMessageInput.value.length;
   }
 
-  const ownerAccount =
-    OWNER_ACCOUNTS[activeSession.username];
-
-  const invitationURL = createAbsoluteInvitationURL(
-    invitationPageInput.value
-  );
-
-  invitationURL.searchParams.set("to", guestName);
-  invitationURL.searchParams.set("greeting", greeting);
-  invitationURL.searchParams.set("message", message);
-  invitationURL.searchParams.set(
-    "sender",
-    ownerAccount.displayName
-  );
-
-  generatedInvitation = {
-    id: crypto.randomUUID
-      ? crypto.randomUUID()
-      : String(Date.now()),
-
-    guestName,
-    greeting,
-    message,
-
-    sender: ownerAccount.displayName,
-    url: invitationURL.toString(),
-
-    createdAt: new Date().toISOString()
-  };
-
-  previewGreeting.textContent = greeting;
-  previewGuest.textContent = guestName;
-  previewMessage.textContent = message;
-
-  generatedLinkInput.value =
-    generatedInvitation.url;
-
-  emptyResult.classList.add("hidden");
-  generatedResult.classList.remove("hidden");
-
-  saveInvitationToHistory(generatedInvitation);
-
-  resultMessage.textContent =
-    "Link undangan berhasil dibuat.";
-
-  generatedResult.scrollIntoView({
-    behavior: "smooth",
-    block: "nearest"
-  });
-});
-
-
-/*
-  Salin link.
-*/
-copyLinkButton.addEventListener("click", async function () {
-  if (!generatedInvitation) {
-    return;
+  if (invitationMessageInput) {
+    invitationMessageInput.addEventListener(
+      "input",
+      updateCharacterCount
+    );
   }
 
-  try {
-    await navigator.clipboard.writeText(
-      generatedInvitation.url
+  updateCharacterCount();
+
+  invitationForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const guestName = guestNameInput
+      ? guestNameInput.value.trim()
+      : "";
+
+    const greeting = invitationGreetingInput
+      ? invitationGreetingInput.value.trim()
+      : "Kepada Yth.";
+
+    const message = invitationMessageInput
+      ? invitationMessageInput.value.trim()
+      : "";
+
+    if (!guestName) {
+      if (guestNameInput) {
+        guestNameInput.focus();
+      }
+      return;
+    }
+
+    if (!message) {
+      if (invitationMessageInput) {
+        invitationMessageInput.focus();
+      }
+      return;
+    }
+
+    const invitationURL = createAbsoluteInvitationURL(
+      invitationPageInput ? invitationPageInput.value : "index.html"
     );
 
-    resultMessage.textContent =
-      "Link undangan berhasil disalin.";
-  } catch (error) {
-    generatedLinkInput.select();
-    document.execCommand("copy");
+    invitationURL.searchParams.set("to", guestName);
+    invitationURL.searchParams.set("greeting", greeting);
+    invitationURL.searchParams.set("message", message);
 
-    resultMessage.textContent =
-      "Link undangan berhasil disalin.";
+    generatedInvitation = {
+      id: createInvitationId(),
+      guestName,
+      greeting,
+      message,
+      url: invitationURL.toString(),
+      createdAt: new Date().toISOString()
+    };
+
+    if (previewGreeting) {
+      previewGreeting.textContent = greeting;
+    }
+
+    if (previewGuest) {
+      previewGuest.textContent = guestName;
+    }
+
+    if (previewMessage) {
+      previewMessage.textContent = message;
+    }
+
+    if (generatedLinkInput) {
+      generatedLinkInput.value = generatedInvitation.url;
+    }
+
+    if (emptyResult) {
+      emptyResult.classList.add("hidden");
+    }
+
+    if (generatedResult) {
+      generatedResult.classList.remove("hidden");
+    }
+
+    saveInvitationToHistory(generatedInvitation);
+    showResultMessage("Link undangan berhasil dibuat.");
+
+    if (generatedResult) {
+      generatedResult.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    }
+  });
+
+  if (copyLinkButton) {
+    copyLinkButton.addEventListener("click", async function () {
+      if (!generatedInvitation) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(
+          generatedInvitation.url
+        );
+
+        showResultMessage("Link undangan berhasil disalin.");
+      } catch (error) {
+        if (generatedLinkInput) {
+          generatedLinkInput.select();
+          generatedLinkInput.setSelectionRange(
+            0,
+            generatedLinkInput.value.length
+          );
+
+          document.execCommand("copy");
+        }
+
+        showResultMessage("Link undangan berhasil disalin.");
+      }
+    });
   }
-});
 
+  function openInvitationURL(url) {
+    const openedWindow = window.open(url, "_blank");
 
-/*
-  Buka link undangan.
-*/
-openLinkButton.addEventListener("click", function () {
-  if (!generatedInvitation) {
-    return;
+    if (openedWindow) {
+      openedWindow.opener = null;
+    } else {
+      window.location.href = url;
+    }
   }
 
-  window.open(
-    generatedInvitation.url,
-    "_blank",
-    "noopener,noreferrer"
-  );
-});
+  if (openLinkButton) {
+    openLinkButton.addEventListener("click", function () {
+      if (!generatedInvitation) {
+        return;
+      }
 
+      openInvitationURL(generatedInvitation.url);
+    });
+  }
 
-/*
-  Membuat teks pesan WhatsApp.
-*/
-function createWhatsAppMessage(invitation) {
-  return `${invitation.greeting}
+  function createWhatsAppMessage(invitation) {
+    return `${invitation.greeting}
 
 *${invitation.guestName}*
 
@@ -376,273 +255,188 @@ Silakan membuka undangan melalui tautan berikut:
 
 ${invitation.url}
 
-Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila berkenan hadir dan memberikan doa restu.
+Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.
 
 Salam hangat,
-*Achmad & Suci*`;
-}
 
-
-/*
-  Kirim melalui WhatsApp.
-*/
-whatsappButton.addEventListener("click", function () {
-  if (!generatedInvitation) {
-    return;
+*Aan & Suci*`;
   }
 
-  const whatsappMessage =
-    createWhatsAppMessage(generatedInvitation);
+  function openWhatsApp(invitation) {
+    const message = createWhatsAppMessage(invitation);
+    const whatsappURL =
+      "https://wa.me/?text=" + encodeURIComponent(message);
 
-  const whatsappURL =
-    "https://wa.me/?text=" +
-    encodeURIComponent(whatsappMessage);
+    openInvitationURL(whatsappURL);
+  }
 
-  window.open(
-    whatsappURL,
-    "_blank",
-    "noopener,noreferrer"
-  );
-});
+  if (whatsappButton) {
+    whatsappButton.addEventListener("click", function () {
+      if (!generatedInvitation) {
+        return;
+      }
 
+      openWhatsApp(generatedInvitation);
+    });
+  }
 
-/*
-  Mengambil riwayat undangan.
-*/
-function getInvitationHistory() {
-  try {
-    const history =
-      localStorage.getItem(HISTORY_KEY);
+  function getInvitationHistory() {
+    try {
+      const storedHistory = localStorage.getItem(HISTORY_KEY);
 
-    if (!history) {
+      if (!storedHistory) {
+        return [];
+      }
+
+      const parsedHistory = JSON.parse(storedHistory);
+
+      return Array.isArray(parsedHistory) ? parsedHistory : [];
+    } catch (error) {
       return [];
     }
-
-    const parsedHistory = JSON.parse(history);
-
-    return Array.isArray(parsedHistory)
-      ? parsedHistory
-      : [];
-  } catch (error) {
-    return [];
   }
-}
 
+  function saveInvitationToHistory(invitation) {
+    const history = getInvitationHistory();
+    history.unshift(invitation);
 
-/*
-  Menyimpan undangan ke riwayat.
-*/
-function saveInvitationToHistory(invitation) {
-  const history = getInvitationHistory();
-
-  history.unshift(invitation);
-
-  /*
-    Batasi sampai 100 data tamu.
-  */
-  const limitedHistory = history.slice(0, 100);
-
-  localStorage.setItem(
-    HISTORY_KEY,
-    JSON.stringify(limitedHistory)
-  );
-
-  renderHistory();
-}
-
-
-/*
-  Salin link dari riwayat.
-*/
-async function copyHistoryLink(url) {
-  try {
-    await navigator.clipboard.writeText(url);
-    alert("Link undangan berhasil disalin.");
-  } catch (error) {
-    window.prompt(
-      "Salin link undangan berikut:",
-      url
+    localStorage.setItem(
+      HISTORY_KEY,
+      JSON.stringify(history.slice(0, 100))
     );
-  }
-}
 
-
-/*
-  Buka undangan dari riwayat.
-*/
-function openHistoryLink(url) {
-  window.open(
-    url,
-    "_blank",
-    "noopener,noreferrer"
-  );
-}
-
-
-/*
-  Kirim riwayat lewat WhatsApp.
-*/
-function sendHistoryToWhatsApp(invitation) {
-  const message = createWhatsAppMessage(invitation);
-
-  const whatsappURL =
-    "https://wa.me/?text=" +
-    encodeURIComponent(message);
-
-  window.open(
-    whatsappURL,
-    "_blank",
-    "noopener,noreferrer"
-  );
-}
-
-
-/*
-  Hapus satu riwayat.
-*/
-function deleteHistoryItem(id) {
-  const confirmed = confirm(
-    "Hapus data tamu ini dari riwayat?"
-  );
-
-  if (!confirmed) {
-    return;
+    renderHistory();
   }
 
-  const history = getInvitationHistory();
-
-  const updatedHistory =
-    history.filter((item) => item.id !== id);
-
-  localStorage.setItem(
-    HISTORY_KEY,
-    JSON.stringify(updatedHistory)
-  );
-
-  renderHistory();
-}
-
-
-/*
-  Menampilkan daftar riwayat.
-*/
-function renderHistory() {
-  const history = getInvitationHistory();
-
-  historyList.innerHTML = "";
-
-  if (history.length === 0) {
-    historyList.innerHTML = `
-      <div class="empty-history">
-        Belum ada undangan tamu yang dibuat.
-      </div>
-    `;
-
-    return;
+  async function copyHistoryLink(url) {
+    try {
+      await navigator.clipboard.writeText(url);
+      window.alert("Link undangan berhasil disalin.");
+    } catch (error) {
+      window.prompt("Salin link undangan berikut:", url);
+    }
   }
 
-  history.forEach(function (invitation) {
-    const item = document.createElement("article");
+  function deleteHistoryItem(id) {
+    const confirmed = window.confirm(
+      "Hapus undangan tamu ini dari riwayat?"
+    );
 
-    item.className = "history-item";
+    if (!confirmed) {
+      return;
+    }
 
-    const date = new Date(invitation.createdAt);
+    const updatedHistory = getInvitationHistory().filter(
+      function (item) {
+        return item.id !== id;
+      }
+    );
 
-    const formattedDate =
-      new Intl.DateTimeFormat("id-ID", {
+    localStorage.setItem(
+      HISTORY_KEY,
+      JSON.stringify(updatedHistory)
+    );
+
+    renderHistory();
+  }
+
+  function renderHistory() {
+    if (!historyList) {
+      return;
+    }
+
+    const history = getInvitationHistory();
+    historyList.innerHTML = "";
+
+    if (history.length === 0) {
+      historyList.innerHTML = `
+        <div class="empty-history">
+          Belum ada undangan tamu yang dibuat.
+        </div>
+      `;
+      return;
+    }
+
+    history.forEach(function (invitation) {
+      const historyItem = document.createElement("article");
+      historyItem.className = "history-item";
+
+      const invitationDate = new Date(invitation.createdAt);
+
+      const formattedDate = new Intl.DateTimeFormat("id-ID", {
         dateStyle: "medium",
         timeStyle: "short"
-      }).format(date);
+      }).format(invitationDate);
 
-    item.innerHTML = `
-      <div class="history-item-header">
-        <h4>${escapeHTML(invitation.guestName)}</h4>
-        <time>${escapeHTML(formattedDate)}</time>
-      </div>
+      historyItem.innerHTML = `
+        <div class="history-item-header">
+          <h3>${escapeHTML(invitation.guestName)}</h3>
+          <time>${escapeHTML(formattedDate)}</time>
+        </div>
 
-      <p>
-        Dibuat oleh ${escapeHTML(invitation.sender)}
-      </p>
+        <p>${escapeHTML(invitation.greeting)}</p>
 
-      <div class="history-actions">
-        <button type="button" data-action="copy">
-          Salin
-        </button>
+        <div class="history-actions">
+          <button type="button" data-action="copy">Salin</button>
+          <button type="button" data-action="open">Buka</button>
+          <button type="button" data-action="whatsapp">WhatsApp</button>
+          <button type="button" data-action="delete">Hapus</button>
+        </div>
+      `;
 
-        <button type="button" data-action="open">
-          Buka
-        </button>
+      historyItem
+        .querySelector('[data-action="copy"]')
+        .addEventListener("click", function () {
+          copyHistoryLink(invitation.url);
+        });
 
-        <button type="button" data-action="whatsapp">
-          WhatsApp
-        </button>
+      historyItem
+        .querySelector('[data-action="open"]')
+        .addEventListener("click", function () {
+          openInvitationURL(invitation.url);
+        });
 
-        <button type="button" data-action="delete">
-          Hapus
-        </button>
-      </div>
-    `;
+      historyItem
+        .querySelector('[data-action="whatsapp"]')
+        .addEventListener("click", function () {
+          openWhatsApp(invitation);
+        });
 
-    item
-      .querySelector('[data-action="copy"]')
-      .addEventListener("click", function () {
-        copyHistoryLink(invitation.url);
-      });
+      historyItem
+        .querySelector('[data-action="delete"]')
+        .addEventListener("click", function () {
+          deleteHistoryItem(invitation.id);
+        });
 
-    item
-      .querySelector('[data-action="open"]')
-      .addEventListener("click", function () {
-        openHistoryLink(invitation.url);
-      });
-
-    item
-      .querySelector('[data-action="whatsapp"]')
-      .addEventListener("click", function () {
-        sendHistoryToWhatsApp(invitation);
-      });
-
-    item
-      .querySelector('[data-action="delete"]')
-      .addEventListener("click", function () {
-        deleteHistoryItem(invitation.id);
-      });
-
-    historyList.appendChild(item);
-  });
-}
-
-
-/*
-  Hapus semua riwayat.
-*/
-clearHistoryButton.addEventListener("click", function () {
-  const history = getInvitationHistory();
-
-  if (history.length === 0) {
-    return;
+      historyList.appendChild(historyItem);
+    });
   }
 
-  const confirmed = confirm(
-    "Yakin ingin menghapus seluruh riwayat tamu?"
-  );
+  if (clearHistoryButton) {
+    clearHistoryButton.addEventListener("click", function () {
+      const history = getInvitationHistory();
 
-  if (!confirmed) {
-    return;
+      if (history.length === 0) {
+        window.alert("Belum ada riwayat undangan.");
+        return;
+      }
+
+      const confirmed = window.confirm(
+        "Yakin ingin menghapus seluruh riwayat tamu?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      localStorage.removeItem(HISTORY_KEY);
+      renderHistory();
+    });
   }
-
-  localStorage.removeItem(HISTORY_KEY);
 
   renderHistory();
+
+  if (guestNameInput) {
+    guestNameInput.focus();
+  }
 });
-
-
-/*
-  Saat halaman dibuka.
-*/
-const activeSession = getActiveSession();
-
-if (activeSession) {
-  showDashboard(activeSession.username);
-} else {
-  showLogin();
-}
