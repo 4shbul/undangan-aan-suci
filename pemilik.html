@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="robots"
+    content="noindex, nofollow"
+  >
+
+  <title>Panel Pemilik Undangan — Achmad & Suci</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=EB+Garamond:wght@400;500;600&family=Special+Elite&family=Yesteryear&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="pemilik.css">
+</head>
+
+<body>
+
+  <div class="background-decoration decoration-one"></div>
+  <div class="background-decoration decoration-two"></div>
+
+  <main class="owner-page">
+
+    <!-- LOGIN -->
+    <section class="login-section" id="loginSection">
+      <div class="owner-card login-card">
+
+        <div class="ornament">✦</div>
+
+        <p class="eyebrow">Private Invitation Panel</p>
+
+        <h1>Achmad <span>&amp;</span> Suci</h1>
+
+        <p class="description">
+          Halaman khusus kedua mempelai untuk membuat tautan undangan
+          personal bagi setiap tamu.
+        </p>
+
+        <form id="loginForm" class="owner-form">
+
+          <div class="field">
+            <label for="username">Nama pengguna</label>
+
+            <input
+              type="text"
+              id="username"
+              autocomplete="username"
+              placeholder="Masukkan nama pengguna"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="password">Kode akses</label>
+
+            <div class="password-wrapper">
+              <input
+                type="password"
+                id="password"
+                autocomplete="current-password"
+                placeholder="Masukkan kode akses"
+                required
+              >
+
+              <button
+                type="button"
+                id="showPassword"
+                class="show-password"
+                aria-label="Tampilkan kata sandi"
+              >
+                Lihat
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="primary-button">
+            Masuk ke Panel
+          </button>
+
+          <p id="loginMessage" class="form-message"></p>
+
+        </form>
+
+        <p class="security-note">
+          Halaman ini tidak ditampilkan pada navigasi undangan utama.
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- DASHBOARD -->
+    <section
+      class="dashboard-section hidden"
+      id="dashboardSection"
+    >
+
+      <header class="dashboard-header">
+
+        <div>
+          <p class="eyebrow">Wedding Invitation Manager</p>
+          <h2>Panel Undangan</h2>
+
+          <p class="welcome-text">
+            Selamat datang,
+            <strong id="ownerName">Mempelai</strong>.
+          </p>
+        </div>
+
+        <div class="header-actions">
+          <a
+            href="index.html"
+            target="_blank"
+            class="secondary-button"
+          >
+            Lihat Undangan
+          </a>
+
+          <button
+            type="button"
+            id="logoutButton"
+            class="logout-button"
+          >
+            Keluar
+          </button>
+        </div>
+
+      </header>
+
+
+      <div class="dashboard-grid">
+
+        <!-- FORM PEMBUAT UNDANGAN -->
+        <section class="owner-card form-card">
+
+          <div class="card-heading">
+            <span class="card-number">01</span>
+
+            <div>
+              <p class="eyebrow">Invitation Generator</p>
+              <h3>Buat Undangan Tamu</h3>
+            </div>
+          </div>
+
+          <form id="invitationForm" class="owner-form">
+
+            <div class="field">
+              <label for="guestName">
+                Nama tamu
+              </label>
+
+              <input
+                type="text"
+                id="guestName"
+                placeholder="Contoh: Bapak Andi dan Keluarga"
+                required
+              >
+            </div>
+
+            <div class="field">
+              <label for="invitationGreeting">
+                Sapaan
+              </label>
+
+              <select id="invitationGreeting">
+                <option value="Kepada Yth.">
+                  Kepada Yth.
+                </option>
+
+                <option value="Dengan hormat,">
+                  Dengan hormat,
+                </option>
+
+                <option value="Untuk sahabat kami,">
+                  Untuk sahabat kami,
+                </option>
+
+                <option value="Untuk keluarga tercinta,">
+                  Untuk keluarga tercinta,
+                </option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="invitationMessage">
+                Ucapan undangan
+              </label>
+
+              <textarea
+                id="invitationMessage"
+                rows="6"
+                maxlength="500"
+                placeholder="Tuliskan ucapan khusus untuk tamu..."
+              >Merupakan suatu kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu pada acara pernikahan kami.</textarea>
+
+              <div class="character-counter">
+                <span id="characterCount">0</span>/500 karakter
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="invitationPage">
+                Alamat halaman undangan
+              </label>
+
+              <input
+                type="text"
+                id="invitationPage"
+                value="index.html"
+                placeholder="index.html"
+              >
+
+              <small>
+                Gunakan alamat lengkap website setelah dihosting, misalnya
+                https://domainanda.com/index.html
+              </small>
+            </div>
+
+            <button type="submit" class="primary-button">
+              Buat Link Undangan
+            </button>
+
+          </form>
+
+        </section>
+
+
+        <!-- HASIL UNDANGAN -->
+        <section class="owner-card result-card">
+
+          <div class="card-heading">
+            <span class="card-number">02</span>
+
+            <div>
+              <p class="eyebrow">Generated Invitation</p>
+              <h3>Hasil Undangan</h3>
+            </div>
+          </div>
+
+          <div
+            id="emptyResult"
+            class="empty-result"
+          >
+            <div class="empty-icon">✦</div>
+
+            <p>
+              Isi data tamu terlebih dahulu untuk membuat link undangan
+              personal.
+            </p>
+          </div>
+
+          <div
+            id="generatedResult"
+            class="generated-result hidden"
+          >
+
+            <div class="invitation-preview">
+
+              <p id="previewGreeting" class="preview-greeting">
+                Kepada Yth.
+              </p>
+
+              <h4 id="previewGuest">
+                Nama Tamu
+              </h4>
+
+              <div class="preview-divider">
+                <span></span>
+                <b>❦</b>
+                <span></span>
+              </div>
+
+              <p id="previewMessage">
+                Ucapan undangan akan tampil di sini.
+              </p>
+
+              <div class="preview-signature">
+                Achmad <span>&amp;</span> Suci
+              </div>
+
+            </div>
+
+            <div class="field">
+              <label for="generatedLink">
+                Link undangan
+              </label>
+
+              <textarea
+                id="generatedLink"
+                rows="4"
+                readonly
+              ></textarea>
+            </div>
+
+            <div class="result-actions">
+
+              <button
+                type="button"
+                id="copyLinkButton"
+                class="primary-button"
+              >
+                Salin Link
+              </button>
+
+              <button
+                type="button"
+                id="openLinkButton"
+                class="secondary-button"
+              >
+                Buka Link
+              </button>
+
+              <button
+                type="button"
+                id="whatsappButton"
+                class="whatsapp-button"
+              >
+                Kirim WhatsApp
+              </button>
+
+            </div>
+
+            <p
+              id="resultMessage"
+              class="form-message success-message"
+            ></p>
+
+          </div>
+
+        </section>
+
+      </div>
+
+
+      <!-- RIWAYAT -->
+      <section class="owner-card history-card">
+
+        <div class="history-heading">
+
+          <div class="card-heading">
+            <span class="card-number">03</span>
+
+            <div>
+              <p class="eyebrow">Invitation History</p>
+              <h3>Riwayat Tamu</h3>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="clearHistoryButton"
+            class="danger-button"
+          >
+            Hapus Riwayat
+          </button>
+
+        </div>
+
+        <div id="historyList" class="history-list"></div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+  <script src="pemilik.js"></script>
+</body>
+</html>
