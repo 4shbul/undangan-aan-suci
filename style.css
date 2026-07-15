@@ -388,3 +388,190 @@ footer h2{font-family:'Yesteryear',cursive;font-size:3rem;color:var(--gold-brigh
 @media (max-width:390px){
   .cover-names{font-size:2.55rem}.cover-date{font-size:.65rem}.seal-btn{font-size:.62rem;padding:13px 18px}.hero-title{font-size:2.35rem}.hero-ring{width:110px;height:110px}.cd-box{width:68px}.cd-num{font-size:1.5rem}.section-head h2{font-size:1.8rem}.ticket-top span{display:none}.person h3{font-size:1.22rem}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}#cover{transition:none}.music-toggle.playing .music-bars i{animation:none}}
+
+/* =========================================
+   BAGIAN KEDUA MEMPELAI
+========================================= */
+
+.couple-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px minmax(0, 1fr);
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  gap: 24px;
+}
+
+.person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-width: 0;
+  padding: 8px 4px 20px;
+
+  text-align: center;
+}
+
+.person h3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 76px;
+  max-width: 300px;
+
+  margin: 0 auto;
+
+  color: var(--ink);
+
+  font-family: "Fraunces", serif;
+  font-size: 1.32rem;
+  font-weight: 600;
+
+  line-height: 1.35;
+  text-align: center;
+}
+
+.person .role {
+  margin: 10px 0 20px;
+
+  color: var(--mustard);
+
+  font-family: "Special Elite", monospace;
+  font-size: 0.62rem;
+
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.person .child-label {
+  margin: 0 0 8px;
+
+  color: var(--ink-soft);
+
+  font-size: 0.96rem;
+  line-height: 1.5;
+}
+
+.person .parents {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100%;
+  max-width: 320px;
+
+  margin: 0;
+
+  text-align: center;
+}
+
+.person .parents strong {
+  display: block;
+
+  color: var(--ink);
+
+  font-size: 0.96rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.person .parent-and {
+  display: block;
+
+  margin: 2px 0;
+
+  color: var(--mustard);
+
+  font-family: "Yesteryear", cursive;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.couple-and {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 54px;
+  min-width: 54px;
+
+  margin: 0;
+  padding: 0;
+
+  color: var(--mustard);
+
+  font-family: "Yesteryear", cursive;
+  font-size: 3rem;
+  line-height: 1;
+  text-align: center;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 640px) {
+
+  .couple-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .person {
+    width: 100%;
+    padding: 4px 0 20px;
+  }
+
+  .person h3 {
+    min-height: auto;
+    max-width: 360px;
+
+    font-size: 1.3rem;
+    line-height: 1.4;
+  }
+
+  .person .role {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+  .person .parents {
+    max-width: 360px;
+  }
+
+  .couple-and {
+    width: 100%;
+    min-width: 0;
+
+    margin: 4px auto 28px;
+
+    font-size: 3rem;
+    text-align: center;
+  }
+}
+
+
+/* HP kecil */
+@media (max-width: 390px) {
+
+  .person h3 {
+    max-width: 320px;
+    font-size: 1.2rem;
+  }
+
+  .person .child-label,
+  .person .parents strong {
+    font-size: 0.92rem;
+  }
+
+  .couple-and {
+    margin-bottom: 26px;
+    font-size: 2.8rem;
+  }
+}
