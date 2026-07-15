@@ -453,7 +453,7 @@ document.addEventListener("DOMContentLoaded", function () {
     - VIDEO_ID langsung
   */
   const YOUTUBE_MUSIC_URL =
-    "https://www.youtube.com/watch?v=VIDEO_Ihttps://youtu.be/s1ABWNYZaFED_ANDA";
+    "https://youtu.be/s1ABWNYZaFE";
 
   /*
     Volume musik: 0 sampai 100.
