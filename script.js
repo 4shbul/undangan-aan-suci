@@ -1,191 +1,621 @@
-const CONFIG = {
-  weddingDateISO: "2026-08-06T00:00:00+08:00",
-  akad: {
-    title: "Akad Nikah — Achmad & Suci",
-    start: "20260806",
-    end: "20260807",
-    location: "Balai Kartini, Kabupaten Bantaeng",
-    details: "Akad nikah Achmad Amzal Maulana, S.H.Int., M.I.P dan Suci Ainun A. Said, S.Pi. Waktu pelaksanaan akan diinformasikan kemudian."
-  },
-  resepsi: {
-    title: "Resepsi Pernikahan — Achmad & Suci",
-    start: "20260808",
-    end: "20260809",
-    location: "Four Point by Sheraton Hotel, Kota Makassar",
-    details: "Resepsi pernikahan Achmad Amzal Maulana, S.H.Int., M.I.P dan Suci Ainun A. Said, S.Pi. Waktu pelaksanaan akan diinformasikan kemudian."
+"use strict";
+
+/* =========================================
+   KONFIGURASI
+========================================= */
+
+const HISTORY_KEY = "achmadSuciInvitationHistory";
+
+
+/* =========================================
+   ELEMEN HALAMAN
+========================================= */
+
+const invitationForm =
+  document.getElementById("invitationForm");
+
+const guestNameInput =
+  document.getElementById("guestName");
+
+const invitationGreetingInput =
+  document.getElementById("invitationGreeting");
+
+const invitationMessageInput =
+  document.getElementById("invitationMessage");
+
+const invitationPageInput =
+  document.getElementById("invitationPage");
+
+const characterCountElement =
+  document.getElementById("characterCount");
+
+const emptyResult =
+  document.getElementById("emptyResult");
+
+const generatedResult =
+  document.getElementById("generatedResult");
+
+const previewGreeting =
+  document.getElementById("previewGreeting");
+
+const previewGuest =
+  document.getElementById("previewGuest");
+
+const previewMessage =
+  document.getElementById("previewMessage");
+
+const generatedLinkInput =
+  document.getElementById("generatedLink");
+
+const copyLinkButton =
+  document.getElementById("copyLinkButton");
+
+const openLinkButton =
+  document.getElementById("openLinkButton");
+
+const whatsappButton =
+  document.getElementById("whatsappButton");
+
+const resultMessage =
+  document.getElementById("resultMessage");
+
+const historyList =
+  document.getElementById("historyList");
+
+const clearHistoryButton =
+  document.getElementById("clearHistoryButton");
+
+let generatedInvitation = null;
+
+
+/* =========================================
+   FUNGSI BANTUAN
+========================================= */
+
+function escapeHTML(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+function createInvitationId() {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
   }
-};
 
-const params = new URLSearchParams(window.location.search);
-const guest = params.get("to");
-if (guest) {
-  document.getElementById("guestName").textContent = guest.trim() || "Tamu Undangan";
+  return `${Date.now()}-${Math.random()
+    .toString(16)
+    .slice(2)}`;
 }
 
-const cover = document.getElementById("cover");
-const openButton = document.getElementById("openBtn");
-document.body.style.overflow = "hidden";
-openButton.addEventListener("click", () => {
-  cover.classList.add("open");
-  document.body.style.overflow = "auto";
-  window.setTimeout(() => document.getElementById("hero").scrollIntoView(), 450);
-});
 
-function updateCountdown() {
-  const target = new Date(CONFIG.weddingDateISO).getTime();
-  const now = Date.now();
-  const diff = Math.max(0, target - now);
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff / 3600000) % 24);
-  const minutes = Math.floor((diff / 60000) % 60);
-  const seconds = Math.floor((diff / 1000) % 60);
-  document.getElementById("cd-d").textContent = String(days).padStart(2, "0");
-  document.getElementById("cd-h").textContent = String(hours).padStart(2, "0");
-  document.getElementById("cd-m").textContent = String(minutes).padStart(2, "0");
-  document.getElementById("cd-s").textContent = String(seconds).padStart(2, "0");
-}
-updateCountdown();
-window.setInterval(updateCountdown, 1000);
+function createAbsoluteInvitationURL(pageValue) {
+  const cleanPage =
+    pageValue.trim() || "index.html";
 
-function googleCalendarLink(event) {
-  const base = "https://calendar.google.com/calendar/render?action=TEMPLATE";
-  const query = new URLSearchParams({
-    text: event.title,
-    dates: `${event.start}/${event.end}`,
-    location: event.location,
-    details: event.details,
-    ctz: "Asia/Makassar"
-  });
-  return `${base}&${query.toString()}`;
-}
-document.getElementById("cal-akad").href = googleCalendarLink(CONFIG.akad);
-document.getElementById("cal-resepsi").href = googleCalendarLink(CONFIG.resepsi);
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) entry.target.classList.add("in");
-  });
-}, { threshold: 0.12 });
-document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
-
-const STORAGE_KEY = "achmad-suci-wishes";
-const wishlist = document.getElementById("wishlist");
-const rsvpForm = document.getElementById("rsvpForm");
-const rsvpMessage = document.getElementById("rsvp-msg");
-const clearWishes = document.getElementById("clearWishes");
-
-function escapeHtml(value) {
-  const element = document.createElement("div");
-  element.textContent = String(value ?? "");
-  return element.innerHTML;
-}
-
-function getWishes() {
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    return Array.isArray(saved) ? saved : [];
-  } catch {
+    return new URL(
+      cleanPage,
+      window.location.href
+    );
+  } catch (error) {
+    return new URL(
+      "index.html",
+      window.location.href
+    );
+  }
+}
+
+
+function showResultMessage(message) {
+  resultMessage.textContent = message;
+
+  window.clearTimeout(
+    showResultMessage.timeout
+  );
+
+  showResultMessage.timeout =
+    window.setTimeout(function () {
+      resultMessage.textContent = "";
+    }, 4000);
+}
+
+
+/* =========================================
+   PENGHITUNG KARAKTER
+========================================= */
+
+function updateCharacterCount() {
+  characterCountElement.textContent =
+    invitationMessageInput.value.length;
+}
+
+invitationMessageInput.addEventListener(
+  "input",
+  updateCharacterCount
+);
+
+updateCharacterCount();
+
+
+/* =========================================
+   MEMBUAT LINK UNDANGAN
+========================================= */
+
+invitationForm.addEventListener(
+  "submit",
+  function (event) {
+    event.preventDefault();
+
+    const guestName =
+      guestNameInput.value.trim();
+
+    const greeting =
+      invitationGreetingInput.value.trim();
+
+    const message =
+      invitationMessageInput.value.trim();
+
+    if (!guestName) {
+      guestNameInput.focus();
+      return;
+    }
+
+    if (!message) {
+      invitationMessageInput.focus();
+      return;
+    }
+
+    const invitationURL =
+      createAbsoluteInvitationURL(
+        invitationPageInput.value
+      );
+
+    invitationURL.searchParams.set(
+      "to",
+      guestName
+    );
+
+    invitationURL.searchParams.set(
+      "greeting",
+      greeting
+    );
+
+    invitationURL.searchParams.set(
+      "message",
+      message
+    );
+
+    generatedInvitation = {
+      id: createInvitationId(),
+      guestName,
+      greeting,
+      message,
+      url: invitationURL.toString(),
+      createdAt: new Date().toISOString()
+    };
+
+    previewGreeting.textContent =
+      greeting;
+
+    previewGuest.textContent =
+      guestName;
+
+    previewMessage.textContent =
+      message;
+
+    generatedLinkInput.value =
+      generatedInvitation.url;
+
+    emptyResult.classList.add("hidden");
+
+    generatedResult.classList.remove(
+      "hidden"
+    );
+
+    saveInvitationToHistory(
+      generatedInvitation
+    );
+
+    showResultMessage(
+      "Link undangan berhasil dibuat."
+    );
+
+    generatedResult.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+  }
+);
+
+
+/* =========================================
+   SALIN LINK
+========================================= */
+
+copyLinkButton.addEventListener(
+  "click",
+  async function () {
+    if (!generatedInvitation) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        generatedInvitation.url
+      );
+
+      showResultMessage(
+        "Link undangan berhasil disalin."
+      );
+    } catch (error) {
+      generatedLinkInput.select();
+      generatedLinkInput.setSelectionRange(
+        0,
+        generatedLinkInput.value.length
+      );
+
+      document.execCommand("copy");
+
+      showResultMessage(
+        "Link undangan berhasil disalin."
+      );
+    }
+  }
+);
+
+
+/* =========================================
+   BUKA UNDANGAN
+========================================= */
+
+openLinkButton.addEventListener(
+  "click",
+  function () {
+    if (!generatedInvitation) {
+      return;
+    }
+
+    window.open(
+      generatedInvitation.url,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
+);
+
+
+/* =========================================
+   PESAN WHATSAPP
+========================================= */
+
+function createWhatsAppMessage(invitation) {
+  return `${invitation.greeting}
+
+*${invitation.guestName}*
+
+Dengan penuh rasa syukur, kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami.
+
+${invitation.message}
+
+Silakan membuka undangan melalui tautan berikut:
+
+${invitation.url}
+
+Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.
+
+Salam hangat,
+
+*Achmad & Suci*`;
+}
+
+
+function openWhatsApp(invitation) {
+  const message =
+    createWhatsAppMessage(invitation);
+
+  const whatsappURL =
+    "https://wa.me/?text=" +
+    encodeURIComponent(message);
+
+  window.open(
+    whatsappURL,
+    "_blank",
+    "noopener,noreferrer"
+  );
+}
+
+
+whatsappButton.addEventListener(
+  "click",
+  function () {
+    if (!generatedInvitation) {
+      return;
+    }
+
+    openWhatsApp(
+      generatedInvitation
+    );
+  }
+);
+
+
+/* =========================================
+   RIWAYAT UNDANGAN
+========================================= */
+
+function getInvitationHistory() {
+  try {
+    const storedHistory =
+      localStorage.getItem(HISTORY_KEY);
+
+    if (!storedHistory) {
+      return [];
+    }
+
+    const parsedHistory =
+      JSON.parse(storedHistory);
+
+    return Array.isArray(parsedHistory)
+      ? parsedHistory
+      : [];
+  } catch (error) {
     return [];
   }
 }
 
-function saveWishes(wishes) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes));
+
+function saveInvitationToHistory(
+  invitation
+) {
+  const history =
+    getInvitationHistory();
+
+  history.unshift(invitation);
+
+  const limitedHistory =
+    history.slice(0, 100);
+
+  localStorage.setItem(
+    HISTORY_KEY,
+    JSON.stringify(limitedHistory)
+  );
+
+  renderHistory();
 }
 
-function renderWishes() {
-  const wishes = getWishes();
-  if (!wishes.length) {
-    wishlist.innerHTML = '<p class="empty-wishes">Jadilah yang pertama mengirim ucapan dan doa ✦</p>';
-    clearWishes.hidden = true;
+
+async function copyHistoryLink(url) {
+  try {
+    await navigator.clipboard.writeText(
+      url
+    );
+
+    alert(
+      "Link undangan berhasil disalin."
+    );
+  } catch (error) {
+    window.prompt(
+      "Salin link undangan berikut:",
+      url
+    );
+  }
+}
+
+
+function openHistoryLink(url) {
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  );
+}
+
+
+function deleteHistoryItem(id) {
+  const confirmed = window.confirm(
+    "Hapus undangan tamu ini dari riwayat?"
+  );
+
+  if (!confirmed) {
     return;
   }
-  clearWishes.hidden = false;
-  wishlist.innerHTML = wishes.map((wish) => `
-    <article class="wish">
-      <div class="wish-head">
-        <span class="who">${escapeHtml(wish.name)}</span>
-        <span class="status">${escapeHtml(wish.status)}</span>
+
+  const history =
+    getInvitationHistory();
+
+  const updatedHistory =
+    history.filter(function (item) {
+      return item.id !== id;
+    });
+
+  localStorage.setItem(
+    HISTORY_KEY,
+    JSON.stringify(updatedHistory)
+  );
+
+  renderHistory();
+}
+
+
+function renderHistory() {
+  const history =
+    getInvitationHistory();
+
+  historyList.innerHTML = "";
+
+  if (history.length === 0) {
+    historyList.innerHTML = `
+      <div class="empty-history">
+        Belum ada undangan tamu yang dibuat.
       </div>
-      <div class="event">${escapeHtml(wish.event)}</div>
-      <p>${escapeHtml(wish.message || "Semoga menjadi keluarga yang sakinah, mawaddah, warahmah.")}</p>
-    </article>
-  `).join("");
-}
+    `;
 
-rsvpForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const data = new FormData(rsvpForm);
-  const entry = {
-    name: String(data.get("name") || "").trim(),
-    event: String(data.get("event") || "Keduanya"),
-    status: String(data.get("status") || "Hadir"),
-    message: String(data.get("message") || "").trim(),
-    createdAt: Date.now()
-  };
-  if (!entry.name) {
-    rsvpMessage.textContent = "Mohon isi nama terlebih dahulu.";
     return;
   }
-  const wishes = getWishes();
-  wishes.unshift(entry);
-  saveWishes(wishes.slice(0, 50));
-  renderWishes();
-  rsvpForm.reset();
-  rsvpMessage.textContent = "Terima kasih. Konfirmasi dan ucapan Anda telah tersimpan pada perangkat ini ✦";
-});
 
-clearWishes.addEventListener("click", () => {
-  const confirmed = window.confirm("Hapus seluruh ucapan yang tersimpan pada perangkat ini?");
-  if (!confirmed) return;
-  localStorage.removeItem(STORAGE_KEY);
-  renderWishes();
-  rsvpMessage.textContent = "Daftar ucapan pada perangkat ini telah dibersihkan.";
-});
-renderWishes();
+  history.forEach(function (invitation) {
+    const historyItem =
+      document.createElement("article");
 
-let audioContext;
-let playing = false;
-let audioNodes = [];
-const musicButton = document.getElementById("music-toggle");
+    historyItem.className =
+      "history-item";
 
-function startAmbient() {
-  audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
-  const master = audioContext.createGain();
-  master.gain.setValueAtTime(0.035, audioContext.currentTime);
-  master.connect(audioContext.destination);
-  [220, 277.18, 329.63].forEach((frequency, index) => {
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    oscillator.type = "sine";
-    oscillator.frequency.value = frequency;
-    gain.gain.setValueAtTime(0, audioContext.currentTime);
-    gain.gain.linearRampToValueAtTime(0.17, audioContext.currentTime + 1.2 + index * 0.25);
-    oscillator.connect(gain);
-    gain.connect(master);
-    oscillator.start();
-    audioNodes.push({ oscillator, gain });
+    const invitationDate =
+      new Date(invitation.createdAt);
+
+    const formattedDate =
+      new Intl.DateTimeFormat(
+        "id-ID",
+        {
+          dateStyle: "medium",
+          timeStyle: "short"
+        }
+      ).format(invitationDate);
+
+    historyItem.innerHTML = `
+      <div class="history-item-header">
+        <h3>
+          ${escapeHTML(invitation.guestName)}
+        </h3>
+
+        <time>
+          ${escapeHTML(formattedDate)}
+        </time>
+      </div>
+
+      <p>
+        ${escapeHTML(invitation.greeting)}
+      </p>
+
+      <div class="history-actions">
+
+        <button
+          type="button"
+          data-action="copy"
+        >
+          Salin
+        </button>
+
+        <button
+          type="button"
+          data-action="open"
+        >
+          Buka
+        </button>
+
+        <button
+          type="button"
+          data-action="whatsapp"
+        >
+          WhatsApp
+        </button>
+
+        <button
+          type="button"
+          data-action="delete"
+        >
+          Hapus
+        </button>
+
+      </div>
+    `;
+
+    historyItem
+      .querySelector('[data-action="copy"]')
+      .addEventListener(
+        "click",
+        function () {
+          copyHistoryLink(
+            invitation.url
+          );
+        }
+      );
+
+    historyItem
+      .querySelector('[data-action="open"]')
+      .addEventListener(
+        "click",
+        function () {
+          openHistoryLink(
+            invitation.url
+          );
+        }
+      );
+
+    historyItem
+      .querySelector('[data-action="whatsapp"]')
+      .addEventListener(
+        "click",
+        function () {
+          openWhatsApp(invitation);
+        }
+      );
+
+    historyItem
+      .querySelector('[data-action="delete"]')
+      .addEventListener(
+        "click",
+        function () {
+          deleteHistoryItem(
+            invitation.id
+          );
+        }
+      );
+
+    historyList.appendChild(
+      historyItem
+    );
   });
-  audioNodes.push({ master });
 }
 
-function stopAmbient() {
-  if (!audioContext) return;
-  audioNodes.forEach((node) => {
-    if (node.gain) node.gain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.5);
-    if (node.oscillator) node.oscillator.stop(audioContext.currentTime + 0.65);
-  });
-  audioNodes = [];
-}
 
-musicButton.addEventListener("click", async () => {
-  if (!playing) {
-    startAmbient();
-    if (audioContext.state === "suspended") await audioContext.resume();
-    musicButton.classList.add("playing");
-  } else {
-    stopAmbient();
-    musicButton.classList.remove("playing");
+/* =========================================
+   HAPUS SEMUA RIWAYAT
+========================================= */
+
+clearHistoryButton.addEventListener(
+  "click",
+  function () {
+    const history =
+      getInvitationHistory();
+
+    if (history.length === 0) {
+      alert(
+        "Belum ada riwayat undangan."
+      );
+
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Yakin ingin menghapus seluruh riwayat tamu?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    localStorage.removeItem(
+      HISTORY_KEY
+    );
+
+    renderHistory();
   }
-  playing = !playing;
-});
+);
+
+
+/* =========================================
+   INISIALISASI
+========================================= */
+
+renderHistory();
+
+guestNameInput.focus();
