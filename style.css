@@ -1640,20 +1640,24 @@ footer p{
 
 
   .groom-photo{
+    object-fit: cover !important;
     object-position:80% 43%;
-    transform:scale(1.5);
+    transform:scale(2);
   }
 
   .bride-photo{
-    object-position:18% 68%;
-    transform:scale(1.5);
+    object-fit: cover !important;
+    object-position:center 18%;
+    transform: scale(2);
   }
 
   .person:hover .groom-photo,
   .person:hover .bride-photo{
-    transform:scale(1.55);
+    transform:scale(2);
   }
-
+  .person:hover .bride-photo{
+    transform: scale(2);
+  }
   .couple-and{
     width:100%;
     min-width:0;
@@ -2083,6 +2087,22 @@ footer p{
 
 /* Nama dan gelar mempelai pria tetap satu baris */
 .person h3.groom-name {
+  width: 100%;
+  max-width: none;
+  min-height: auto;
+
+  margin: 0 auto;
+
+  font-size: 1.4rem;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.person h3.groom-name2 {
   width: 100%;
   max-width: none;
   min-height: auto;
