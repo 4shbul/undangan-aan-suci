@@ -2134,3 +2134,176 @@ footer p{
     font-size: 0.88rem;
   }
 }
+
+/* ===========================
+   OUR LOVE STORY
+=========================== */
+
+#story{
+    position:relative;
+    overflow:hidden;
+}
+
+.story-timeline{
+    position:relative;
+    max-width:900px;
+    margin:60px auto 0;
+}
+
+.story-timeline::before{
+    content:"";
+    position:absolute;
+    left:34px;
+    top:0;
+    bottom:0;
+
+    width:2px;
+
+    background:linear-gradient(
+        to bottom,
+        rgba(212,171,93,.2),
+        rgba(212,171,93,.8),
+        rgba(212,171,93,.2)
+    );
+}
+
+.story-item{
+    position:relative;
+
+    display:flex;
+    gap:28px;
+
+    margin-bottom:55px;
+}
+
+.story-number{
+
+    width:70px;
+    height:70px;
+
+    flex-shrink:0;
+
+    border-radius:50%;
+
+    background:linear-gradient(
+        145deg,
+        #6d4d22,
+        #2b1807
+    );
+
+    border:2px solid var(--mustard);
+
+    color:var(--mustard);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-family:'Fraunces',serif;
+    font-size:1.2rem;
+    font-weight:700;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.35);
+}
+
+.story-content{
+
+    flex:1;
+
+    background:rgba(255,255,255,.03);
+
+    border:1px solid rgba(212,171,93,.15);
+
+    border-radius:20px;
+
+    padding:25px;
+
+    backdrop-filter:blur(10px);
+}
+
+.story-content h3{
+
+    margin-bottom:12px;
+
+    color:var(--mustard);
+
+    font-family:'Fraunces',serif;
+    font-size:1.45rem;
+}
+
+.story-content p{
+
+    color:var(--ink-soft);
+
+    line-height:1.9;
+    text-align:justify;
+}
+
+.story-content strong{
+    color:var(--mustard);
+}
+
+@media(max-width:768px){
+
+.story-timeline::before{
+    left:28px;
+}
+
+.story-item{
+    gap:18px;
+}
+
+.story-number{
+
+    width:56px;
+    height:56px;
+
+    font-size:1rem;
+}
+
+.story-content{
+    padding:20px;
+}
+
+.story-content h3{
+    font-size:1.2rem;
+}
+
+.story-content p{
+    font-size:.94rem;
+}
+
+}
+
+@media(max-width:576px){
+
+.story-item{
+    gap:14px;
+    margin-bottom:40px;
+}
+
+.story-number{
+
+    width:50px;
+    height:50px;
+}
+
+.story-timeline::before{
+    left:24px;
+}
+
+.story-content{
+
+    padding:18px;
+}
+
+.story-content h3{
+    font-size:1.1rem;
+}
+
+.story-content p{
+    font-size:.9rem;
+    line-height:1.8;
+}
+
+}
