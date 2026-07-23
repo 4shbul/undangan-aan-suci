@@ -244,8 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function createWhatsAppMessage(invitation) {
     return `${invitation.greeting}
-
-Assalamualaikum warahmatullahi wabarakatuh.
+Assalamu'alaikum Warahmatullahi Wabarakatuh
 
 Yth, Bapak/Ibu/Saudara/i
 *${invitation.guestName}*
