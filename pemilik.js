@@ -21,6 +21,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   const guestNameInput = document.getElementById("guestName");
+  const guestNameBulk = document.getElementById("guestNameBulk");
+  const toggleBulkButton = document.getElementById("toggleBulkButton");
+  const bulkCounter = document.getElementById("bulkCounter");
+  const bulkCount = document.getElementById("bulkCount");
   const invitationGreetingInput =
     document.getElementById("invitationGreeting");
   const invitationMessageInput =
@@ -51,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("clearHistoryButton");
 
   let generatedInvitation = null;
+  let isBulkMode = false;
 
   function escapeHTML(value) {
     return String(value)
@@ -59,6 +64,59 @@ document.addEventListener("DOMContentLoaded", function () {
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#039;");
+  }
+
+  function updateBulkCounter() {
+    if (!guestNameBulk || !bulkCount || !bulkCounter) {
+      return;
+    }
+
+    const names = guestNameBulk.value
+      .split("\n")
+      .map(function (line) {
+        return line.trim();
+      })
+      .filter(function (line) {
+        return line.length > 0;
+      });
+
+    bulkCount.textContent = names.length;
+  }
+
+  function toggleBulkMode() {
+    isBulkMode = !isBulkMode;
+
+    if (guestNameInput) {
+      guestNameInput.classList.toggle("hidden", isBulkMode);
+    }
+
+    if (guestNameBulk) {
+      guestNameBulk.classList.toggle("hidden", !isBulkMode);
+    }
+
+    if (bulkCounter) {
+      bulkCounter.classList.toggle("hidden", !isBulkMode);
+    }
+
+    if (toggleBulkButton) {
+      toggleBulkButton.textContent = isBulkMode
+        ? "Input Satuan"
+        : "Input Banyak";
+    }
+
+    if (isBulkMode && guestNameBulk) {
+      guestNameBulk.focus();
+    } else if (guestNameInput) {
+      guestNameInput.focus();
+    }
+  }
+
+  if (toggleBulkButton) {
+    toggleBulkButton.addEventListener("click", toggleBulkMode);
+  }
+
+  if (guestNameBulk) {
+    guestNameBulk.addEventListener("input", updateBulkCounter);
   }
 
   function createInvitationId() {
@@ -116,16 +174,71 @@ document.addEventListener("DOMContentLoaded", function () {
   invitationForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const guestName = guestNameInput
-      ? guestNameInput.value.trim()
-      : "";
-
     const greeting = invitationGreetingInput
       ? invitationGreetingInput.value.trim()
       : "Kepada Yth.";
 
     const message = invitationMessageInput
       ? invitationMessageInput.value.trim()
+      : "";
+
+    if (!message) {
+      if (invitationMessageInput) {
+        invitationMessageInput.focus();
+      }
+      return;
+    }
+
+    const invitationPage = invitationPageInput
+      ? invitationPageInput.value
+      : "index.html";
+
+    if (isBulkMode) {
+      const bulkNames = guestNameBulk
+        ? guestNameBulk.value
+            .split("\n")
+            .map(function (line) {
+              return line.trim();
+            })
+            .filter(function (line) {
+              return line.length > 0;
+            })
+        : [];
+
+      if (bulkNames.length === 0) {
+        if (guestNameBulk) {
+          guestNameBulk.focus();
+        }
+        return;
+      }
+
+      let count = 0;
+
+      bulkNames.forEach(function (guestName) {
+        const invitationURL = createAbsoluteInvitationURL(invitationPage);
+        invitationURL.searchParams.set("to", guestName);
+        invitationURL.searchParams.set("greeting", greeting);
+        invitationURL.searchParams.set("message", message);
+
+        const invitation = {
+          id: createInvitationId(),
+          guestName: guestName,
+          greeting: greeting,
+          message: message,
+          url: invitationURL.toString(),
+          createdAt: new Date().toISOString()
+        };
+
+        saveInvitationToHistory(invitation);
+        count++;
+      });
+
+      showResultMessage(count + " undangan berhasil dibuat.");
+      return;
+    }
+
+    const guestName = guestNameInput
+      ? guestNameInput.value.trim()
       : "";
 
     if (!guestName) {
@@ -135,16 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    if (!message) {
-      if (invitationMessageInput) {
-        invitationMessageInput.focus();
-      }
-      return;
-    }
-
-    const invitationURL = createAbsoluteInvitationURL(
-      invitationPageInput ? invitationPageInput.value : "index.html"
-    );
+    const invitationURL = createAbsoluteInvitationURL(invitationPage);
 
     invitationURL.searchParams.set("to", guestName);
     invitationURL.searchParams.set("greeting", greeting);

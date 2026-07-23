@@ -243,6 +243,40 @@ button {
   text-transform: uppercase;
 }
 
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.label-row label {
+  margin-bottom: 0;
+}
+
+.toggle-bulk-button {
+  padding: 4px 10px;
+
+  color: var(--mustard);
+  background: transparent;
+  border: 1px solid var(--mustard);
+
+  font-family: "Special Elite", monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.toggle-bulk-button:hover {
+  color: var(--cream);
+  background: var(--mustard);
+}
+
 .field input,
 .field textarea,
 .field select {

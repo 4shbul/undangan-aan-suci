@@ -101,9 +101,19 @@
 
           <div class="field">
 
-            <label for="guestName">
-              Nama tamu
-            </label>
+            <div class="label-row">
+              <label for="guestName">
+                Nama tamu
+              </label>
+
+              <button
+                type="button"
+                id="toggleBulkButton"
+                class="toggle-bulk-button"
+              >
+                Input Banyak
+              </button>
+            </div>
 
             <input
               type="text"
@@ -113,6 +123,18 @@
               autocomplete="off"
               required
             >
+
+            <textarea
+              id="guestNameBulk"
+              name="guestNameBulk"
+              rows="6"
+              placeholder="Masukkan nama tamu, satu nama per baris.&#10;&#10;Contoh:&#10;Bapak Andi dan Keluarga&#10;Ibu Ratna dan Keluarga&#10;Bapak Budi dan Keluarga"
+              class="hidden"
+            ></textarea>
+
+            <small id="bulkCounter" class="hidden">
+              <span id="bulkCount">0</span> tamu terdeteksi
+            </small>
 
           </div>
 
